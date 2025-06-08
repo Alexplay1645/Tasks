@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 02</title>
+</head>
+
+<body>
+
+    <h2>Постик :)</h2>
+    <form id="postForm">
+        <label for="title">Заголовок:</label><br>
+        <input type="text" id="title" name="title"><br><br>
+
+        <label for="body">Содержимое:</label><br>
+        <textarea id="body" name="body" rows="4" cols="50"></textarea><br><br>
+
+        <button type="submit">Обновить</button>
+    </form>
+
+    <div id="message" style="margin-top: 15px;"></div>
+
+    <script>
+        /*
+        Задание:
+        Напишите сценарий, который будет обновлять сущность post со свойствами
+        id: 1,
+        title: 'foo',
+        body: 'bar',
+        userId: 1,
+
+        Создайте форму с полем ввода для значения свойства title и полем ввода для значения свойства body
+
+        Значения для свойств title и body получите от пользователя
+        Значения id и userId должны остаться равными 1 и выводить их в форме не нужно.
+        При загрузке сценария заполните форму данными получеными при обработке GET запроса на https://jsonplaceholder.typicode.com/posts/1
+
+        адрес для отправки запроса
+        https://jsonplaceholder.typicode.com/posts/1
+
+        для обновления сущности воспользуйтесь PUT запросом https://jsonplaceholder.typicode.com/posts/1. Обработайте ответ
+        и выведите информацию о ошибке или об успешно завершенной операции.
+        */
+
+        const form = document.getElementById("postForm");
+        const titleInput = document.getElementById("title");
+        const bodyInput = document.getElementById("body");
+        const message = document.getElementById("message");
+
+        const postId = 1;
+        const userId = 1;
+        const url = `https://jsonplaceholder.typicode.com/posts/1`;
+
+        window.addEventListener("DOMContentLoaded", () => {
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error("Ошибка загрузки данных");
+                    return response.json();
+                })
+                .then(data => {
+                    titleInput.value = data.title;
+                    bodyInput.value = data.body;
+                })
+                .catch(error => {
+                    message.innerHTML = `<span style="color:red;">${error.message}</span>`;
+                });
+        });
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const updatedPost = {
+                id: postId,
+                title: titleInput.value,
+                body: bodyInput.value,
+                userId: userId
+            };
+
+            fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(updatedPost)
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error("Не удалось обновить пост");
+                    return response.json();
+                })
+                .then(data => {
+                    message.innerHTML = `<span style="color:green;">Пост успешно обновлён!</span><br>
+                        <strong>ID:</strong> ${data.id}<br>
+                        <strong>Title:</strong> ${data.title}<br>
+                        <strong>Body:</strong> ${data.body}`;
+                })
+                .catch(error => {
+                    message.innerHTML = `<span style="color:red;">${error.message}</span>`;
+                });
+        });
+    </script>
+</body>
+
+</html>
